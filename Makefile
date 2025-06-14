@@ -8,6 +8,7 @@ help:
 	@echo "  make restart  - Restart all containers"
 	@echo "  make logs     - View container logs"
 	@echo "  make test     - Run container tests"
+	@echo "  make testall  - Run advanced container tests"
 	@echo "  make clean    - Clean up everything"
 	@echo "  make backup   - Backup MongoDB"
 	@echo "  make restore  - Restore MongoDB"
@@ -28,7 +29,10 @@ logs:
 	docker compose logs -f
 
 test:
-	./test-containers.sh
+	./scripts/test-containers.sh
+
+testall:
+	./scripts/advanced-test.sh
 
 clean:
 	docker compose down -v
