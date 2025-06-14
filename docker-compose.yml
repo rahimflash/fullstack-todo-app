@@ -1,0 +1,80 @@
+services:
+  mongodb:
+    image: mongo:8.0.5
+    container_name: todo-mongodb
+    restart: unless-stopped
+    environment:
+      # MongoDB will run without authentication to match the app's connection string
+      MONGO_INITDB_DATABASE: todos
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+   
+    # Using host networking mode so it's accessible on 127.0.0.1
+    network_mode: "host"
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh 127.0.0.1:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    mem_limit: 512m
+    cpus: 0.5
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+   
+    # Backend also uses host network to access MongoDB on 127.0.0.1
+    network_mode: "host"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    mem_limit: 256m
+    cpus: 0.5
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    container_name: todo-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - todo-network
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    mem_limit: 128m
+    cpus: 0.25
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
