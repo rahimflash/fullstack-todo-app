@@ -68,7 +68,7 @@ load_test() {
 resource_usage() {
     echo ""
     echo "10. Resource Usage..."
-    docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" | grep -E "todo-|CONTAINER"
+    docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" | grep -E "todo-|CONTAINER"
 }
 
 # Run all tests

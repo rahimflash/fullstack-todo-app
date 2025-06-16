@@ -2,11 +2,12 @@
 
 ### Overview
 
-This documentation provides a complete containerization solution for the Todo List application **without requiring any changes to the existing application code**. The solution works around hardcoded values and configurations in the original code.
+This documentation provides a complete containerization solution for the Todo List application **without unnecessary changes to the existing application code**. The solution works around hardcoded values and configurations in the original code.
 
 ### Key Challenges Addressed
 
 1. **Hardcoded MongoDB Connection**: Backend uses `mongodb://127.0.0.1:27017`
+2. **Hardcoded API URLs in frontend hooks**: Frontend uses `https://fullstack-todolist-upnv.onrender.com` to make calls to backend. Changed this to `http://localhost:3000` for my use case
 3. **No Health Endpoints**: Application doesn't have health check endpoints
 4. **No Environment Variables**: Application doesn't read from environment variables
 
